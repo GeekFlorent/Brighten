@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brighten | Global Intellectual Network</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --primary: #00897B; --accent: #FF9800; --bg: #0F0F0F; --text: #EFEFEF; --card: #1C1C1E; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-top: 70px; padding-bottom: 90px; overflow-x: hidden; }
+
+        /* 1. WELCOME VIDEO OVERLAY (Splash Screen) */
+        #welcome-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; transition: opacity 1s ease-out;
+        }
+        .welcome-logo { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--accent)); 
+                        border-radius: 20px; display: flex; align-items: center; justify-content: center; 
+                        font-size: 45px; font-weight: 900; color: white; margin-bottom: 20px; 
+                        animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        
+        /* 2. HEADER & BRANDING */
+        .header { position: fixed; top: 0; width: 100%; height: 70px; background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 25px; z-index: 1001; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-b { width: 38px; height: 38px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; }
+        
+        /* 3. SEARCH & INPUTS (Warning Resolved) */
+        .search-hub { position: relative; flex: 1; max-width: 320px; margin: 0 20px; }
+        .search-hub input { width: 100%; background: rgba(255,255,255,0.05); border: none; border-radius: 12px; padding: 10px 15px 10px 40px; color: var(--text); outline: none; }
+        .search-hub i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #888; }
+
+        /* 4. SCREENS & NAVIGATION */
+        .screen { display: none; width: 100%; max-width: 480px; margin: 0 auto; padding: 20px; }
+        .active-screen { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card); display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
+        .tab { display: flex; flex-direction: column; align-items: center; color: #777; font-size: 10px; cursor: pointer; }
+        .tab.active { color: var(--primary); }
+        .upload-center { background: var(--primary); color: white !important; width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-top: -30px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        .footer-sig { text-align: center; padding: 40px 10px; font-size: 10px; color: #888; letter-spacing: 3px; font-family: monospace; }
+        .card { background: var(--card); padding: 18px; border-radius: 18px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.03); cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="welcome-overlay">
+        <div class="welcome-logo">B</div>
+        <h2 style="letter-spacing: 2px; font-weight: 300;">BRIGHTEN</h2>
+        <p style="font-size: 12px; color: #555;">Initializing Global Network...</p>
+    </div>
+
+    <header class="header">
+        <div class="logo-box" style="display:flex; align-items:center; gap:10px;">
+            <div class="logo-b">B</div>
+            <span style="font-weight:800; font-size:22px;">Brighten</span>
+        </div>
+        <div class="search-hub">
+            <i class="fas fa-search"></i>
+            <input type="text" id="main-search" name="search" placeholder="Explore Knowledge...">
+        </div>
+    </header>
+
+    <div class="app-content">
+        <div id="reels-screen" class="screen active-screen">
+            <h3>Global Perspective</h3>
+            <div style="width:100%; aspect-ratio:9/16; background:#000; border-radius:30px; display:flex; align-items:center; justify-content:center; border: 1px solid #222;">
+                <i class="fas fa-clapperboard fa-2x" style="color:#222"></i>
+            </div>
+        </div>
+
+        <div id="profile-screen" class="screen">
+            <div style="text-align:center; padding: 30px 0;">
+                <div style="width:90px; height:90px; background:linear-gradient(135deg, var(--primary), var(--accent)); border-radius:25px; margin:0 auto 15px; display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:900;">F</div>
+                <h2 style="margin:0;">Geek Florent</h2>
+                <p style="color:#888;">Lead Architect</p>
+            </div>
+            
+            <div class="card" onclick="shareApp()">
+                <span>Invite to Network</span>
+                <i class="fas fa-share-nodes" style="color:var(--primary)"></i>
+            </div>
+
+            <div class="footer-sig">POWERED BY <b>GEEK FLORENT</b></div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="tab active" onclick="nav('reels', this)"><i class="fas fa-clapperboard"></i><span>Perspective</span></div>
+        <div class="tab" onclick="alert('Creation Lab Ready')"><div class="upload-center"><i class="fas fa-plus"></i></div></div>
+        <div class="tab" onclick="nav('profile', this)"><i class="fas fa-shield-halved"></i><span>Profile</span></div>
+    </nav>
+
+    <script>
+        // Connect to your project from photo
+        const _sb = supabase.createClient('https://qsjnkftmqacdfxuoqciy.supabase.co', 'sb_publishable_3RHvhEN53CKC2atARWSI2w_OUzPSvF0');
+
+        // SPLASH SCREEN LOGIC
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const overlay = document.getElementById('welcome-overlay');
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 1000);
+            }, 2500); // Plays for 2.5 seconds
+        });
+
+        function nav(id, el) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(id + '-screen').classList.add('active-screen');
+            el.classList.add('active');
+        }
+
+        async function shareApp() {
+            try {
+                await navigator.share({
+                    title: 'Brighten Network',
+                    text: 'Connect with me on Brighten—the global network by Geek Florent.',
+                    url: window.location.href
+                });
+            } catch (err) { alert("Link copied: " + window.location.href); }
+        }
+    </script>
+</body>
+</html>
