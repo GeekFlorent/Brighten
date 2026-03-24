@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Brighten | The Intellectual Network</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { 
+            --primary: #00897B; /* Emerald */
+            --accent: #FF9800;  /* Sunset Gold */
+            --bg: #F8F9FA; 
+            --text: #1A1A1B; 
+            --card: #FFFFFF;
+            --glass: rgba(255, 255, 255, 0.8);
+        }
+
+        .dark-mode { 
+            --bg: #0F0F0F; 
+            --text: #EFEFEF; 
+            --card: #1C1C1E;
+            --glass: rgba(28, 28, 30, 0.8);
+        }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-top: 70px; padding-bottom: 90px; transition: 0.3s; }
+
+        /* 1. CLASSY HEADER & B-LOGO */
+        .header { position: fixed; top: 0; width: 100%; height: 70px; background: var(--glass); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 25px; z-index: 1001; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .logo-box { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-b { width: 38px; height: 38px; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .logo-text { color: var(--text); font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+        
+        .search-hub { position: relative; flex: 1; max-width: 320px; margin: 0 20px; }
+        .search-hub input { width: 100%; background: rgba(0,0,0,0.04); border: none; border-radius: 12px; padding: 10px 15px 10px 40px; font-size: 14px; color: var(--text); }
+        .dark-mode .search-hub input { background: rgba(255,255,255,0.05); }
+        .search-hub i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #888; font-size: 14px; }
+
+        /* 2. INTELLECTUAL BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card); display: flex; justify-content: space-around; align-items: center; z-index: 1000; border-top: 1px solid rgba(0,0,0,0.05); }
+        .tab { display: flex; flex-direction: column; align-items: center; color: #777; font-size: 10px; cursor: pointer; transition: 0.2s; position: relative; }
+        .tab.active { color: var(--primary); transform: translateY(-2px); }
+        .tab i { font-size: 22px; margin-bottom: 4px; }
+        
+        /* Modernized Upload Icon */
+        .upload-center { background: var(--primary); color: white !important; width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-top: -30px; box-shadow: 0 8px 20px rgba(0,137,123,0.3); }
+
+        /* 3. APP SCREENS */
+        .screen { display: none; width: 100%; max-width: 480px; margin: 0 auto; padding: 20px; animation: scaleIn 0.3s ease; }
+        .active-screen { display: block; }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* 4. MEDIA LAB (The Intellectual Creator) */
+        .lab-canvas { width: 100%; aspect-ratio: 4/5; border-radius: 20px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 20px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        #canvas-ui { text-align: center; color: #888; }
+        #video-preview { width: 100%; height: 100%; object-fit: cover; display: none; }
+        
+        .control-group { background: var(--card); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.03); }
+        .intel-input { width: 100%; background: var(--bg); border: 1px solid transparent; border-radius: 10px; padding: 12px; color: var(--text); font-family: inherit; margin-bottom: 10px; outline: none; transition: 0.2s; }
+        .intel-input:focus { border-color: var(--primary); background: var(--card); }
+
+        /* 5. COMPONENTS */
+        .post-action { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; letter-spacing: 0.5px; }
+        .card { background: var(--card); padding: 18px; border-radius: 18px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.03); }
+        .footer-sig { text-align: center; padding: 40px 10px; font-size: 10px; color: #888; letter-spacing: 3px; font-family: 'Courier New', monospace; opacity: 0.6; }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <header class="header">
+        <div class="logo-box">
+            <div class="logo-b">B</div>
+            <span class="logo-text">Brighten</span>
+        </div>
+        <div class="search-hub">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Explore Knowledge...">
+        </div>
+        <i class="fas fa-bars" style="color:#888;"></i>
+    </header>
+
+    <div class="app-screens">
+        
+        <div id="reels-screen" class="screen active-screen">
+            <h3>Global Perspective</h3>
+            <div class="lab-canvas" style="height: 65vh; border-radius: 30px;">
+                <i class="fas fa-expand fa-2x" style="color:rgba(255,255,255,0.2)"></i>
+                <div style="position:absolute; bottom:25px; left:25px;">
+                    <strong style="color:white; font-size:18px;">@GeekFlorent</strong>
+                </div>
+            </div>
+        </div>
+
+        <div id="friends-screen" class="screen">
+            <h3>Intellectual Network</h3>
+            <div class="card">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:45px; height:45px; background:var(--primary); border-radius:12px;"></div>
+                    <strong>Visionary_Mind</strong>
+                </div>
+                <span style="color:var(--accent); font-weight:bold;"><i class="fas fa-bolt"></i> 24</span>
+            </div>
+        </div>
+
+        <div id="upload-screen" class="screen">
+            <h3>Media Synthesis</h3>
+            <div class="lab-canvas" onclick="document.getElementById('picker').click()">
+                <video id="video-preview" autoplay playsinline></video>
+                <div id="canvas-ui">
+                    <i class="fas fa-fingerprint fa-3x" style="margin-bottom:12px; color:var(--primary)"></i>
+                    <p>Initialize Media Import</p>
+                </div>
+                <input type="file" id="picker" style="display:none" onchange="previewMedia()">
+            </div>
+
+            <div class="control-group">
+                <select class="intel-input" id="sound-lib" onchange="applyLyrics()">
+                    <option value="none">Atmospheric Silence</option>
+                    <option value="innovation">Innovation Suite (Instrumental)</option>
+                    <option value="kigali">Kigali Nightfall (Lofi)</option>
+                </select>
+                <textarea class="intel-input" id="lyric-overlay" placeholder="Input intellectual overlay or lyrics..." style="height:80px;"></textarea>
+            </div>
+
+            <button class="post-action" onclick="alert('Broadcasting to Global Network...')">PUBLISH CONTENT</button>
+        </div>
+
+        <div id="chats-screen" class="screen">
+            <h3>Encrypted Directs</h3>
+            <div class="card">
+                <span>Start secure dialogue...</span>
+                <i class="fas fa-paper-plane"></i>
+            </div>
+        </div>
+
+        <div id="profile-screen" class="screen">
+            <div style="text-align:center; padding: 30px 0;">
+                <div style="width:90px; height:90px; background:linear-gradient(135deg, var(--primary), var(--accent)); border-radius:25px; margin: 0 auto 15px; display:flex; align-items:center; justify-content:center; color:white; font-size:40px; font-weight:900;">F</div>
+                <h2 style="margin:0;">Geek Florent</h2>
+                <p style="color:#888; font-size:13px;">Lead Architect | BMPE</p>
+            </div>
+            
+            <div class="card" onclick="toggleTheme()"><span>Visual Theme (Dark/Light)</span><i class="fas fa-circle-half-stroke"></i></div>
+            <div class="card"><span>Global Parameters</span><i class="fas fa-sliders"></i></div>
+            <div class="card" style="color:var(--accent);"><span>Sign Out System</span><i class="fas fa-power-off"></i></div>
+
+            <div class="footer-sig">POWERED BY <b>GEEK FLORENT</b></div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="tab active" onclick="nav('reels', this)"><i class="fas fa-clapperboard"></i><span>Perspective</span></div>
+        <div class="tab" onclick="nav('friends', this)"><i class="fas fa-diagram-project"></i><span>Network</span></div>
+        <div class="tab" onclick="nav('upload', this)">
+            <div class="upload-center"><i class="fas fa-plus"></i></div>
+        </div>
+        <div class="tab" onclick="nav('chats', this)"><i class="fas fa-message"></i><span>Directs</span></div>
+        <div class="tab" onclick="nav('profile', this)"><i class="fas fa-shield-halved"></i><span>Profile</span></div>
+    </nav>
+
+    <script>
+        // Supabase Initialization
+        const _sb = supabase.createClient('https://qsjnkftmqacdfxuoqciy.supabase.co', 'sb_publishable_3RHvhEN53CKC2atARWSI2w_OUzPSvF0');
+
+        function nav(id, el) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(id + '-screen').classList.add('active-screen');
+            el.classList.add('active');
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('brighten-vibe', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+
+        function previewMedia() {
+            const file = document.getElementById('picker').files[0];
+            const video = document.getElementById('video-preview');
+            const ui = document.getElementById('canvas-ui');
+            
+            if (file) {
+                const url = URL.createObjectURL(file);
+                video.src = url;
+                video.style.display = 'block';
+                ui.style.display = 'none';
+            }
+        }
+
+        function applyLyrics() {
+            const track = document.getElementById('sound-lib').value;
+            const text = document.getElementById('lyric-overlay');
+            if(track === 'innovation') text.value = "Translating complex ideas into digital reality...";
+            if(track === 'kigali') text.value = "The pulse of the thousand hills in a single beat...";
+        }
+
+        // Persistence check
+        if(localStorage.getItem('brighten-vibe') === 'light') document.body.classList.remove('dark-mode');
+    </script>
+</body>
+</html>
